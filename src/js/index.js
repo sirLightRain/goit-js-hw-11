@@ -1,11 +1,17 @@
 import axios from 'axios';
 import Notiflix from 'notiflix';
-// const API_KEY = '38440649-adbc72164fad22e06504da38e';
+// Описаний в документації
+import SimpleLightbox from 'simplelightbox';
+// Додатковий імпорт стилів
+import 'simplelightbox/dist/simple-lightbox.min.css';
+
+//! const API_KEY = '38440649-adbc72164fad22e06504da38e';
 const BASE_URL = 'https://pixabay.com/api/';
 const PER_PAGE = 40;
 
 let page = 1;
 let currentQuery = '';
+let isFirstSearch = true;
 
 const searchForm = document.querySelector('.search-form');
 const gallery = document.querySelector('.gallery');
@@ -25,6 +31,7 @@ async function handleFormSubmit(event) {
   page = 1;
   gallery.innerHTML = '';
   loadMoreButton.style.display = 'none';
+  isFirstSearch = true;
   await searchImages(currentQuery, page);
 }
 
@@ -62,6 +69,13 @@ async function searchImages(query, page) {
       gallery.appendChild(card);
     });
 
+    if (isFirstSearch) {
+      // Вивести повідомлення про кількість знайдених зображень тільки при першому пошуку
+      Notiflix.Report.info('Hooray!', `We found ${data.totalHits} images.`, 'Ok');
+      isFirstSearch = false; // Встановлюємо змінну у false, щоб більше не виводити повідомлення
+    }
+
+
     if (data.totalHits > page * PER_PAGE) {
       loadMoreButton.style.display = 'block';
     } else {
@@ -84,11 +98,11 @@ function loadMoreImages() {
 }
 
 function createMarkup(image) {
-  const cardHTML = `
-    <div class="photo-card">
+  const cardMarkup = `
+    <div class="gallery__item">
       <img src="${image.webformatURL}" alt="${image.tags}" loading="lazy" />
       <div class="info">
-        <p class="info-item"><b>Likes:</b> ${image.likes}</p>
+        <p class="info-item"><b>❤ Likes:</b> ${image.likes}</p>
         <p class="info-item"><b>Views:</b> ${image.views}</p>
         <p class="info-item"><b>Comments:</b> ${image.comments}</p>
         <p class="info-item"><b>Downloads:</b> ${image.downloads}</p>
@@ -97,7 +111,7 @@ function createMarkup(image) {
   `;
 
   const card = document.createElement('div');
-  card.innerHTML = cardHTML.trim();
+  card.innerHTML = cardMarkup.trim();
 
   return card.firstChild;
 }

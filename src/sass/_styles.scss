@@ -47,7 +47,7 @@ body {
   column-gap: 20px;
 }
 
-.photo-card {
+.gallery__item {
   width: 350px;
   background-color: #f9f9f9;
   /* padding: 10px; */
@@ -55,7 +55,7 @@ body {
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
 }
 
-.photo-card img {
+.gallery__item img {
   width: 100%;
   border-radius: 5px;
 }

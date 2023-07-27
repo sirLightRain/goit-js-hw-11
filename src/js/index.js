@@ -4,6 +4,9 @@ import Notiflix from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 // Додатковий імпорт стилів
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import { createMarkup } from './createMarkup';
+
+const simplelightbox = new SimpleLightbox('.js-gallery a');
 
 //! const API_KEY = '38440649-adbc72164fad22e06504da38e';
 const BASE_URL = 'https://pixabay.com/api/';
@@ -14,7 +17,7 @@ let currentQuery = '';
 let isFirstSearch = true;
 
 const searchForm = document.querySelector('.search-form');
-const gallery = document.querySelector('.gallery');
+const gallery = document.querySelector('.js-gallery');
 const loadMoreButton = document.querySelector('.load-more');
 
 searchForm.addEventListener('submit', handleFormSubmit);
@@ -30,6 +33,9 @@ async function handleFormSubmit(event) {
   currentQuery = searchQuery;
   page = 1;
   gallery.innerHTML = '';
+
+  simplelightbox.refresh();
+
   loadMoreButton.style.display = 'none';
   isFirstSearch = true;
   await searchImages(currentQuery, page);
@@ -37,7 +43,6 @@ async function handleFormSubmit(event) {
 
 async function searchImages(query, page) {
   try {
-    // const url = `${BASE_URL}?key=${API_KEY}&q=${query}&image_type=photo&orientation=horizontal&safesearch=true&per_page=${PER_PAGE}&page=${page}`;
     const params = new URLSearchParams({
       key: '38440649-adbc72164fad22e06504da38e',
       q: query,
@@ -48,7 +53,6 @@ async function searchImages(query, page) {
       page: `${page}`,
     });
 
-    // const response = await axios.get(url);
     const response = await axios.get(`${BASE_URL}?${params}`);
     console.log('response: ', response);
     const data = response.data;
@@ -66,15 +70,21 @@ async function searchImages(query, page) {
 
     data.hits.forEach(image => {
       const card = createMarkup(image);
+
       gallery.appendChild(card);
     });
 
+    simplelightbox.refresh();
+
     if (isFirstSearch) {
       // Вивести повідомлення про кількість знайдених зображень тільки при першому пошуку
-      Notiflix.Report.info('Hooray!', `We found ${data.totalHits} images.`, 'Ok');
+      Notiflix.Report.info(
+        'Hooray!',
+        `We found ${data.totalHits} images.`,
+        'Ok'
+      );
       isFirstSearch = false; // Встановлюємо змінну у false, щоб більше не виводити повідомлення
     }
-
 
     if (data.totalHits > page * PER_PAGE) {
       loadMoreButton.style.display = 'block';
@@ -95,23 +105,4 @@ async function searchImages(query, page) {
 function loadMoreImages() {
   page += 1;
   searchImages(currentQuery, page);
-}
-
-function createMarkup(image) {
-  const cardMarkup = `
-    <div class="gallery__item">
-      <img src="${image.webformatURL}" alt="${image.tags}" loading="lazy" />
-      <div class="info">
-        <p class="info-item"><b>❤ Likes:</b> ${image.likes}</p>
-        <p class="info-item"><b>Views:</b> ${image.views}</p>
-        <p class="info-item"><b>Comments:</b> ${image.comments}</p>
-        <p class="info-item"><b>Downloads:</b> ${image.downloads}</p>
-      </div>
-    </div>
-  `;
-
-  const card = document.createElement('div');
-  card.innerHTML = cardMarkup.trim();
-
-  return card.firstChild;
 }

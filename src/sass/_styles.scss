@@ -4,6 +4,11 @@ body {
   padding: 0;
 }
 
+.link {
+  // list-style: none;
+  text-decoration: none;
+}
+
 .container {
   margin: 0 auto;
   padding: 20px;
@@ -39,7 +44,7 @@ body {
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
 }
 
-.gallery {
+.js-gallery {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
